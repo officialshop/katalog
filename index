@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Katalog UTI</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-mint: #f4f6f9; 
+      --card-white: #ffffff;
+      --header-h: 125px; 
+      --footer-h: 45px;  
+    }
+
+    body {
+      margin: 0; padding: 0; 
+      background-color: var(--bg-mint);
+      font-family: 'Poppins', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding-top: var(--header-h); 
+      padding-bottom: calc(var(--footer-h) + 20px); 
+    }
+
+    /* HEADER TETAP - ESTETIK */
+    .sticky-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255, 255, 255, 0.92); 
+      backdrop-filter: blur(12px);
+      padding: 12px 15px 10px 15px;
+      height: var(--header-h);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border-bottom: 2px solid transparent;
+      border-image: linear-gradient(90deg, #7F00FF, #E100FF) 1; /* Garis aksen Gen Z */
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    
+    .brand-text { font-weight: 800; font-size: 1.4rem; color: #7F00FF; letter-spacing: -0.5px;}
+    .brand-text span { color: #E100FF; }
+    
+    .header-btns { display: flex; gap: 6px; }
+
+    #searchInput {
+      border-radius: 12px; padding: 10px 15px; border: 1px solid #e2e8f0;
+      width: 100%; outline: none; font-size: 13px;
+      background: #f8fafc; margin-bottom: 8px;
+      transition: 0.3s;
+    }
+    #searchInput:focus { border-color: #E100FF; box-shadow: 0 0 0 3px rgba(225, 0, 255, 0.1); }
+
+    .filter-section { display: flex; gap: 8px; }
+    #categoryDropdown {
+      flex: 1; border-radius: 10px; padding: 8px; border: 1px solid #e2e8f0;
+      font-size: 12px; font-weight: 600; color: #334155; background: #fff;
+      outline: none;
+    }
+    
+    .btn-fav-filter {
+      border-radius: 10px; padding: 8px 12px; border: 1px solid #ff4757;
+      background: white; color: #ff4757; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: 0.2s;
+    }
+    .btn-fav-filter.active { background: #ff4757; color: white; border-color: #ff4757; }
+
+    /* KONTEN UTAMA */
+    .main-wrapper { 
+      padding: 15px 12px;
+      min-height: 70vh;
+    }
+
+    /* KARTU PRODUK */
+    .product-card {
+      background: white; border-radius: 20px; padding: 18px;
+      margin-bottom: 15px; border: 1px solid #f1f5f9; 
+      box-shadow: 0 8px 15px rgba(0,0,0,0.03);
+      position: relative;
+    }
+    
+    .badge-custom {
+      font-size: 9px; padding: 5px 12px; border-radius: 8px;
+      text-transform: uppercase; font-weight: 700; color: white;
+    }
+    .merk-label { 
+      font-size: 10px; color: #334155; font-weight: 700; 
+      background: #f1f5f9; padding: 4px 10px; border-radius: 6px;
+    }
+    
+    /* LABEL OFFICIAL STORE */
+    .official-badge {
+      font-size: 10px; color: #0284c7; font-weight: 800;
+      background: #e0f2fe; padding: 4px 10px; border-radius: 6px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+
+    .product-name { 
+      font-weight: 700; color: #1e293b; font-size: 14px; 
+      margin: 12px 0; line-height: 1.4;
+    }
+
+    /* TOMBOL LINK (1 Baris Horizontal) */
+    .button-group { display: flex; gap: 10px; flex-wrap: nowrap; }
+    .btn-aff {
+      flex: 1; border-radius: 12px; padding: 10px; font-size: 11px;
+      font-weight: 700; text-align: center; text-decoration: none !important;
+      color: white !important; display: flex; align-items: center; justify-content: center; gap: 5px;
+      white-space: nowrap; transition: transform 0.1s;
+    }
+    .btn-aff:active { transform: scale(0.95); }
+    .shopee { background: linear-gradient(135deg, #ff7675, #ff4757); }
+    .tiktok { background: linear-gradient(135deg, #2d3436, #000000); }
+
+    /* TOMBOL FAVORIT (HEART) */
+    .fav-icon {
+      font-size: 20px; color: #cbd5e1; cursor: pointer; transition: 0.3s;
+    }
+    .fav-icon.active { color: #ff4757; }
+
+    /* FOOTER TETAP - WARNA GEN Z */
+    .sticky-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--footer-h);
+      background: linear-gradient(90deg, #7F00FF, #FF007F, #FF8C00); /* Y2K / GenZ Vibe */
+      background-size: 200% 200%;
+      animation: gradientBG 5s ease infinite;
+      color: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; z-index: 1000;
+      box-shadow: 0 -4px 15px rgba(0,0,0,0.15);
+      border-top-left-radius: 15px; border-top-right-radius: 15px;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* CUSTOM MODAL (MENGGANTIKAN ALERT) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6); z-index: 2000;
+      display: none; justify-content: center; align-items: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-box {
+      background: white; padding: 25px; border-radius: 24px;
+      width: 85%; max-width: 400px; text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+      animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popUp { 
+      from { transform: scale(0.8); opacity: 0; } 
+      to { transform: scale(1); opacity: 1; } 
+    }
+    .modal-title { font-weight: 800; color: #1e293b; font-size: 16px; margin-bottom: 12px; }
+    .modal-text { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 20px; text-align: left;}
+    .btn-close-modal {
+      background: linear-gradient(90deg, #7F00FF, #E100FF);
+      color: white; border: none; padding: 10px;
+      border-radius: 12px; font-weight: 700; width: 100%; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="sticky-header">
+  <div class="header-top">
+    <div class="brand-text">Katalog<span>UTI</span></div>
+    <div class="header-btns">
+      <button class="btn btn-sm btn-dark rounded-pill px-2 text-white" onclick="installApp()" style="font-size: 9px; font-weight: 700;">
+        <i class="fas fa-plus-square"></i> Shortcut
+      </button>
+      <button class="btn btn-sm btn-outline-dark rounded-pill px-2" onclick="showGuide()" style="font-size: 9px; font-weight: 700;">
+        <i class="fas fa-info-circle"></i> Panduan
+      </button>
+    </div>
+  </div>
+  
+  <input type="text" id="searchInput" placeholder="Cari nama barang atau merk..." onkeyup="search()">
+  
+  <div class="filter-section">
+    <select id="categoryDropdown" onchange="search()">
+      <option value="Semua">📂 Semua Kategori</option>
+      <option value="Pakaian & Gaya">👕 Pakaian & Gaya</option>
+      <option value="Kesehatan & Perawatan">💖 Kesehatan & Perawatan</option>
+      <option value="Perabot & Dekorasi">🏠 Perabot & Dekorasi</option>
+      <option value="Gadget & Elektronik">📱 Gadget & Elektronik</option>
+      <option value="Kebutuhan Rumah">🛒 Kebutuhan Rumah</option>
+      <option value="Ibu & Anak">👶 Ibu & Anak</option>
+      <option value="Hobi & Otomotif">🏍️ Hobi & Otomotif</option>
+      <option value="Viral & Unik">✨ Viral & Unik</option>
+    </select>
+    <button class="btn-fav-filter" id="favFilterBtn" onclick="toggleFavFilter()">
+      <i class="fas fa-heart"></i> Favorit
+    </button>
+  </div>
+</div>
+
+<!-- KONTEN -->
+<div class="main-wrapper">
+  <div id="productList">
+    <div class="text-center py-5 text-muted small">
+       <div class="spinner-border spinner-border-sm text-primary mb-2"></div><br>
+       Memuat katalog...
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="sticky-footer" id="footerText">
+  ✨ Sedang memuat info... ✨
+</div>
+
+<!-- CUSTOM MODAL -->
+<div id="customModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">Judul</div>
+    <div class="modal-text" id="modalBody">Isi teks disini</div>
+    <button class="btn-close-modal" onclick="closeModal()">Mengerti</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+<script>
+  let localData = [];
+  let showFavOnly = false;
+  let favorites = JSON.parse(localStorage.getItem('uti_favorites')) || [];
+
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ9ETE1X3iKPNOXuwVC0LIxjt01bMb_PbJf8P8srgmaFyqS9HyWrFgnLNAehl1wDY4fouEijqOj0Bfz/pub?output=csv';
+
+  function init() {
+    Papa.parse(CSV_URL, {
+      download: true,
+      header: false,
+      complete: function(results) {
+        localData = results.data.slice(1); 
+        
+        // Baca footer dari Kolom K Baris 2 (Indeks 10 dalam array)
+        if(localData[0] && localData[0][10]) {
+            document.getElementById('footerText').innerText = localData[0][10];
+        } else {
+            document.getElementById('footerText').innerText = "✨ Temukan barang impianmu disini! ✨";
+        }
+
+        renderData(localData);
+      }
+    });
+  }
+
+  function renderData(data) {
+    const list = document.getElementById('productList');
+    let html = '';
+    
+    const validData = data.filter(row => row[0] && row[0].trim() !== "");
+
+    if(validData.length === 0) {
+      list.innerHTML = `<div class="text-center py-5 text-muted small">Barang tidak ditemukan.</div>`;
+      return;
+    }
+
+    validData.forEach((row) => {
+      // Pemetaan Kolom Google Sheets ke Array:
+      // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7, I=8, J=9, K=10
+      const nama = row[0];
+      const kategori = row[1];
+      const merk = row[2];
+      const shopee = row[3];
+      const tiktok = row[4];
+      const kataKunci = row[5];
+      const cekOfficial = row[6]; // Keterangan Official diambil dari Kolom G (Index 6)
+
+      const isFav = favorites.includes(nama);
+      const heartClass = isFav ? 'fas fa-heart active' : 'far fa-heart';
+      
+      // Logika Penanda Official Store dari kolom G
+      const isOfficial = (cekOfficial && (cekOfficial.toLowerCase().includes('ya') || cekOfficial.toLowerCase().includes('official')));
+      const officialBadgeHTML = isOfficial ? `<span class="official-badge"><i class="fas fa-check-circle"></i> Official</span>` : '';
+
+      let color = "#94a3b8";
+      if(kategori === "Pakaian & Gaya") color = "#f43f5e";
+      if(kategori === "Kesehatan & Perawatan") color = "#ec4899";
+      if(kategori === "Perabot & Dekorasi") color = "#10b981";
+      if(kategori === "Gadget & Elektronik") color = "#3b82f6";
+      if(kategori === "Kebutuhan Rumah") color = "#f59e0b";
+      if(kategori === "Ibu & Anak") color = "#06b6d4";
+      if(kategori === "Hobi & Otomotif") color = "#475569";
+      if(kategori === "Viral & Unik") color = "#8b5cf6";
+
+      html += `
+        <div class="product-card">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge-custom" style="background: ${color}">${kategori || 'Lainnya'}</span>
+            <i class="${heartClass} fav-icon" onclick="toggleFav('${nama}')"></i>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="merk-label">${merk || 'Tanpa Merk'}</span>
+            ${officialBadgeHTML}
+          </div>
+          <div class="product-name">${nama}</div>
+          <div class="button-group">
+            <a href="${shopee}" target="_blank" class="btn-aff shopee"><i class="fas fa-shopping-bag"></i> Shopee</a>
+            <a href="${tiktok}" target="_blank" class="btn-aff tiktok"><i class="fab fa-tiktok"></i> TikTok</a>
+          </div>
+        </div>
+      `;
+    });
+    list.innerHTML = html;
+  }
+
+  function search() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    const cat = document.getElementById('categoryDropdown').value;
+
+    const filtered = localData.filter(row => {
+      if(!row[0]) return false;
+      const matchSearch = (row[0] + (row[2] || "") + (row[5] || "")).toString().toLowerCase().includes(term);
+      const matchCat = (cat === 'Semua' || row[1] === cat);
+      const matchFav = !showFavOnly || favorites.includes(row[0]);
+      
+      return matchSearch && matchCat && matchFav;
+    });
+    renderData(filtered);
+  }
+
+  function toggleFav(namaProduk) {
+    if(favorites.includes(namaProduk)) {
+      favorites = favorites.filter(item => item !== namaProduk);
+    } else {
+      favorites.push(namaProduk);
+    }
+    localStorage.setItem('uti_favorites', JSON.stringify(favorites));
+    search(); 
+  }
+
+  function toggleFavFilter() {
+    showFavOnly = !showFavOnly;
+    const btn = document.getElementById('favFilterBtn');
+    if(showFavOnly) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+    search();
+  }
+
+  // LOGIKA CUSTOM MODAL
+  function openModal(title, textHTML) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = textHTML;
+    document.getElementById('customModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('customModal').style.display = 'none';
+  }
+
+  function installApp() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        deferredPrompt = null;
+      });
+    } else {
+      openModal(
+        "✨ Pasang Shortcut di HP ✨", 
+        "<b>📱 Pengguna Android (Chrome):</b><br>Klik ikon titik tiga (⋮) di pojok kanan atas, lalu pilih <b>'Tambahkan ke Layar Utama'</b>.<br><br><b>🍎 Pengguna iPhone (Safari):</b><br>Klik ikon Share (Bagikan) di bagian bawah, lalu pilih <b>'Add to Home Screen'</b>."
+      );
+    }
+  }
+
+  function showGuide() {
+    openModal(
+      "📌 Panduan Penggunaan", 
+      "1. Gunakan <b>kolom pencarian</b> atau <b>filter kategori</b> untuk mencari barang spesifik.<br><br>2. Klik ikon <b>Hati (♡)</b> untuk menyimpan produk favorit agar tidak hilang.<br><br>3. Klik tombol <b>Shopee / TikTok</b> untuk langsung menuju ke produk."
+    );
+  }
+
+  window.onload = init;
+</script>
+</body>
+</html>
